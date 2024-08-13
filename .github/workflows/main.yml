@@ -1,0 +1,42 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install fastapi uvicorn
+
+    - name: Run tests
+      run: |
+        # You can add your test command here if you have tests
+        # Example: pytest tests/
+        uvicorn main:app --host 0.0.0.0 --port 8000 --log-level info --reload &
+        sleep 5
+        curl http://127.0.0.1:8000/status
+
+    - name: Build and deploy
+      if: github.ref == 'refs/heads/main'
+      run: |
+        echo "Deploy step can be added here"
+        # Example: docker build, push, or any deploy command
