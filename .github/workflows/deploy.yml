@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - VideoAPI
   pull_request:
     branches:
       - main
@@ -27,16 +26,15 @@ jobs:
         python -m pip install --upgrade pip
         pip install fastapi uvicorn
 
-    - name: Run tests
+    - name: Test Application
       run: |
-        # You can add your test command here if you have tests
-        # Example: pytest tests/
         uvicorn main:app --host 0.0.0.0 --port 8000 --log-level info --reload &
         sleep 5
-        curl http://127.0.0.1:8000/status
+        curl http://127.0.0.1:8000/
 
-    - name: Build and deploy
-      if: github.ref == 'refs/heads/main'
+    - name: Build Docker image
+      run: docker build . -t fastapi-hello-world
+
+    - name: Deploy Docker container
       run: |
-        echo "Deploy step can be added here"
-        # Example: docker build, push, or any deploy command
+        docker run -d -p 80:80 fastapi-hello-world
